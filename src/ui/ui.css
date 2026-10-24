@@ -47,7 +47,10 @@ textarea.ide-input { font-family: var(--font-code); font-size: var(--font-size-c
 
 /* Layout */
 .ide-view { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-.ide-toolbar { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-bottom: 1px solid var(--line); flex: none; flex-wrap: wrap; background: var(--bg-2); }
+/* The IDE's own buttons may cover the top right corner of the frame (`--ide-head-inset`): the
+   first row of a view leaves them room, as the built-in tools do. */
+.ide-toolbar { display: flex; align-items: center; gap: 6px; padding: 4px calc(8px + var(--ide-head-inset, 0px)) 4px 8px; border-bottom: 1px solid var(--line); flex: none; flex-wrap: wrap; background: var(--bg-2); }
+.ide-view > .ide-scroll:first-child > .ide-tabs:first-child, .ide-head { padding-right: calc(6px + var(--ide-head-inset, 0px)); }
 .ide-toolbar .ide-sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
 .ide-scroll { flex: 1; min-height: 0; overflow: auto; }
 .ide-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); padding: 0 6px; flex: none; }

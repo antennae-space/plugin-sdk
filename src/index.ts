@@ -21,6 +21,9 @@ export const themeTokens = [
   'match-bg', 'match-cur-bg', 'gutter', 'conflict-bg',
   'font-code', 'font-size-code', 'line-height-code', 'font-size-ui', 'ligatures',
   'focus-outline-width', 'focus-dim',
+  // The room of the IDE's buttons over the top right corner of the frame (a length, 0px if none):
+  // leave it in the first row of a view (`.ide-head` of the kit does).
+  'ide-head-inset',
 ] as const
 
 export type ThemeToken = (typeof themeTokens)[number]
