@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "node --test test/",
+    "test": "node --test test/*.test.mjs",
     "check-api": "node scripts/check-api.mjs"
   },
   "peerDependencies": {
