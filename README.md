@@ -17,7 +17,7 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.2.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.3.0 solid-js vite vite-plugin-solid
 ```
 
 - `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
@@ -52,7 +52,7 @@ ide.register({ views: { files: view(Files) } })
 The frame has no network and no storage (its CSP: inline scripts and styles, images as data): the preset inlines the CSS and the assets, and refuses a second file. Ask the backend for what is outside.
 
 - `@antennae-space/plugin-sdk`: the types (`SandboxAPI`, `FrameCall`, `PageMessage`…), `themeTokens`, `isDark()`, and the global `ide`.
-- `@antennae-space/plugin-sdk/solid`: `view(Component)` (a `views` entry, with the kit's styles), `useIde()`, `useTheme()`, `useViewState(initial)` (the state kept with the tab), `useEvent(event, f)`, `useRpc(method, params)`.
+- `@antennae-space/plugin-sdk/solid`: `view(Component)` (a `views` entry, with the kit's styles), `useIde()`, `useTheme()`, `useViewState(initial)` (the state kept with the tab), `useEvent(event, f)`, `useRpc(method, params)`, `useEditor()` (the IDE's editor of a tab view with `editor` in the manifest: `{editor, text, selection}`), `useSettings()` (the plugin's settings).
 - `@antennae-space/plugin-sdk/ui`: `Button`, `IconButton`, `Field`, `TextInput`, `TextArea`, `Select`, `Checkbox`, `Switch`, `View`, `Toolbar`, `Separator`, `Tabs`, `Splitter`, `EmptyState`, `Message`, `Spinner`, `List`, `Tree` (children loaded on opening), `Table` (virtual rows), `openMenu`, `Modal`, `confirm`, `Icon` (a part of the IDE's icons).
 
 The kit follows the rules of the IDE: text never under 12px, the focus always visible, one tab stop per list, tree or table and the arrows inside it. Its colors are the theme's CSS variables (`themeTokens`: `--bg`, `--fg`, `--accent`…), set on the frame by the IDE and changed with the theme; use them in the plugin's own CSS too. `--ide-head-inset` is the room the IDE's own buttons take over the top right corner of the frame: the kit's toolbar leaves it; a header of the plugin's own takes the class `ide-head`.
@@ -99,6 +99,7 @@ func main() {
 - `backend.Emit(ctx, "myplugin.changed", data)`: an event to the windows of the project (`ide.on`).
 - `backend.Dial(ctx, host, port, ssh)`: a connection the IDE opens for the plugin (grant `dial`; through an SSH tunnel of the user's agent and keys with `&backend.SSH{…}` and the grant `ssh`), a `net.Conn`. The user allows each new destination once: the call waits for the answer. A confined backend has no network of its own unless granted `net`.
 - `backend.Secret(ctx, key)`, `SetSecret`, `DeleteSecret`: the plugin's entries of the vault (grant `vault`), synced with the user's other pods; passwords and tokens go there, never in the plugin's files.
+- `backend.Settings(ctx, &out)`: the plugin's settings (`contributes.settings`); `backend.DeclareTargets(ctx, targets)`: what its actions act on, for the user's AI access in Settings.
 - `backend.InfoOf(ctx)`, `backend.LangOf(ctx)` (the language of the window or the conversation).
 - An error with a code: `&backend.Error{Code, Message}`. A tool's error goes to the model as its result.
 - Standard error goes to `backend.log` of its data folder; standard output is the protocol, never print to it.

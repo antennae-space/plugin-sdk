@@ -67,7 +67,10 @@
               "files:read",
               "files:write",
               "net",
-              "exec"
+              "exec",
+              "dial",
+              "ssh",
+              "vault"
             ]
           },
           {
@@ -156,6 +159,38 @@
               "label": {
                 "type": "string",
                 "minLength": 1
+              },
+              "editor": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "lang"
+                ],
+                "description": "The IDE's editor above the view, driven by ide.editor.",
+                "properties": {
+                  "lang": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]*$",
+                    "description": "Its grammar: sql, redis, json, yaml, markdown, shell\u2026"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 90,
+                    "description": "Its share of the tab's height, in percent (40)."
+                  },
+                  "keys": {
+                    "type": "object",
+                    "description": "Keys given to the view by name while the editor has the focus: {\"Ctrl+Enter\": \"run\"}.",
+                    "propertyNames": {
+                      "pattern": "^(Ctrl\\+)?(Alt\\+)?(Shift\\+)?(Meta\\+)?[A-Z][A-Za-z0-9]*$"
+                    },
+                    "additionalProperties": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9-]*$"
+                    }
+                  }
+                }
               }
             }
           }
@@ -226,6 +261,98 @@
                 "items": {
                   "type": "string"
                 }
+              }
+            }
+          }
+        },
+        "settings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "properties"
+          ],
+          "properties": {
+            "properties": {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[a-z][a-z_0-9]*$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "title"
+                ],
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  "enum": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "default": {}
+                }
+              }
+            }
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Each one the method <id>.<action> of the backend and the assistant tool <id>_<action>.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "description",
+              "access"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "properties": {
+                "type": "object"
+              },
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "access": {
+                "enum": [
+                  "read",
+                  "write"
+                ],
+                "description": "write: the user decides per target whether the AI may run it."
+              },
+              "target": {
+                "type": "string",
+                "description": "The argument naming what it acts on (a connection)."
               }
             }
           }

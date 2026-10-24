@@ -1,7 +1,7 @@
 // An example view on the kit, built by the tests with the preset: a list, a table, tabs, a call
 // of the backend, the state of the tab.
 import { createSignal } from 'solid-js'
-import { useIde, useRpc, useViewState, view } from '@antennae-space/plugin-sdk/solid'
+import { useEditor, useIde, useRpc, useSettings, useViewState, view } from '@antennae-space/plugin-sdk/solid'
 import { Button, EmptyState, List, Message, Table, Tabs, View } from '@antennae-space/plugin-sdk/ui'
 import './example.css'
 
@@ -29,7 +29,22 @@ function Main() {
   )
 }
 
+// A tab view with the IDE's editor above: its text, and a key of the manifest.
+function Console() {
+  const ed = useEditor()!
+  const settings = useSettings<{ rows?: number }>()
+  const [ran, setRan] = createSignal('')
+  ed.editor.onKey('run', () => setRan(ed.text()))
+  return (
+    <View>
+      <p class="example-text">{ed.text()}</p>
+      <p class="example-ran">{ran()}</p>
+      <p class="example-rows">{settings().rows}</p>
+    </View>
+  )
+}
+
 ide.register({
-  views: { main: view(Main) },
+  views: { main: view(Main), console: view(Console) },
   commands: { hello: (ide) => ide.toast(ide.t('Hello!'), 'ok') },
 })

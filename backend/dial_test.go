@@ -115,3 +115,32 @@ func TestDialAndSecrets(t *testing.T) {
 		t.Fatalf("secrets: %s %v", m.Result, m.Error)
 	}
 }
+
+func TestSettingsAndTargets(t *testing.T) {
+	var declared json.RawMessage
+	f := start(t, Plugin{Methods: map[string]Method{
+		"db.init": func(ctx context.Context, _ json.RawMessage) (any, error) {
+			var s struct{ Rows int }
+			if err := Settings(ctx, &s); err != nil {
+				return nil, err
+			}
+			return s.Rows, DeclareTargets(ctx, []Target{{ID: "main", Label: "Main DB"}})
+		},
+	}}, func(method string, params json.RawMessage) (any, *Error) {
+		switch method {
+		case "settings.get":
+			return map[string]any{"rows": 42}, nil
+		case "ai.targets":
+			declared = params
+			return map[string]any{}, nil
+		}
+		return nil, &Error{Code: -32000, Message: "no " + method}
+	})
+	f.ask("initialize", initParams)
+	if m := f.ask("call", map[string]any{"method": "db.init"}); m.Error != nil || string(m.Result) != "42" {
+		t.Fatalf("%s %v", m.Result, m.Error)
+	}
+	if string(declared) != `{"targets":[{"id":"main","label":"Main DB"}]}` {
+		t.Fatalf("declared %s", declared)
+	}
+}

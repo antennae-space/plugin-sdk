@@ -67,3 +67,26 @@ export function useRpc<T>(method: string, params?: () => unknown) {
   void reload()
   return { value, error, loading, reload }
 }
+
+/**
+ * The editor of the tab (a tab view whose manifest asks `editor`), with its text and selection
+ * as signals; null in a view without one.
+ */
+export function useEditor() {
+  const ide = useIde()
+  const ed = ide.editor
+  if (!ed) return null
+  const [text, setText] = createSignal(ed.text())
+  const [selection, setSelection] = createSignal(ed.selection())
+  ed.onChange(setText)
+  ed.onSelection(() => setSelection(ed.selection()))
+  return { editor: ed, text, selection }
+}
+
+/** The settings of the plugin, following the user's changes. */
+export function useSettings<T extends Record<string, unknown> = Record<string, unknown>>(): Accessor<T> {
+  const ide = useIde()
+  const [values, setValues] = createSignal<T>(ide.settings as T)
+  ide.onSettings((v) => setValues(() => v as T))
+  return values
+}

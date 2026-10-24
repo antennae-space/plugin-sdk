@@ -42,6 +42,9 @@ function frame(js, files) {
     t: (k) => k,
     tn: (n, one, other) => (n === 1 ? one : other).replace('{n}', String(n)),
     onTheme: () => {},
+    settings: { rows: 7 },
+    onSettings: () => {},
+    editor: null,
   }
   w.eval(js)
   return { w, calls, registered }
@@ -62,7 +65,7 @@ test('the preset builds one self-contained ES module', async () => {
 test('the view renders with the kit and talks to the IDE', async () => {
   const { js } = await bundle()
   const { w, calls, registered } = frame(js, [{ name: 'a.go', size: 10 }, { name: 'b.go', size: null }])
-  assert.deepEqual(Object.keys(registered.views), ['main'])
+  assert.deepEqual(Object.keys(registered.views), ['main', 'console'])
   const el = w.document.getElementById('root')
   registered.views.main(el, w.ide)
   await tick()
@@ -90,4 +93,29 @@ test('the view renders with the kit and talks to the IDE', async () => {
   // A command.
   registered.commands.hello(w.ide)
   assert.deepEqual(calls.at(-1), ['toast', 'Hello!', 'ok'])
+})
+
+test('useEditor and useSettings follow the editor of the tab', async () => {
+  const { js } = await bundle()
+  const { w, registered } = frame(js, [])
+  const fns = { change: [], keys: {} }
+  let text = 'select 1'
+  w.ide.editor = {
+    text: () => text,
+    selection: () => ({ from: 0, to: 0, text: '' }),
+    onChange: (f) => fns.change.push(f),
+    onSelection: () => {},
+    onKey: (name, f) => (fns.keys[name] = f),
+  }
+  registered.views.console(w.document.getElementById('root'), w.ide)
+  await tick()
+  const d = w.document
+  assert.equal(d.querySelector('.example-text').textContent, 'select 1')
+  assert.equal(d.querySelector('.example-rows').textContent, '7')
+  text = 'select 2'
+  fns.change.forEach((f) => f(text))
+  fns.keys.run()
+  await tick()
+  assert.equal(d.querySelector('.example-text').textContent, 'select 2')
+  assert.equal(d.querySelector('.example-ran').textContent, 'select 2')
 })
