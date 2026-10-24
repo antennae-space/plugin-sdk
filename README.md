@@ -17,10 +17,11 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D github:antennae-space/plugin-sdk#v1.0.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.0.0 solid-js vite vite-plugin-solid
 ```
 
-npm 10 fails on the optional peers of Vite 8: put `legacy-peer-deps=true` in the `.npmrc` of the plugin (the peers are listed above).
+- `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
+- npm 10 fails on the optional peers of Vite 8: put `legacy-peer-deps=true` in the `.npmrc` of the plugin (the peers are listed above).
 
 ```js
 // vite.config.js
