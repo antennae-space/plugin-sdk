@@ -17,7 +17,7 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.3.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.4.0 solid-js vite vite-plugin-solid
 ```
 
 - `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
@@ -101,7 +101,8 @@ func main() {
 - `backend.Secret(ctx, key)`, `SetSecret`, `DeleteSecret`: the plugin's entries of the vault (grant `vault`), synced with the user's other pods; passwords and tokens go there, never in the plugin's files.
 - `backend.Settings(ctx, &out)`: the plugin's settings (`contributes.settings`); `backend.DeclareTargets(ctx, targets)`: what its actions act on, for the user's AI access in Settings.
 - `backend.InfoOf(ctx)`, `backend.LangOf(ctx)` (the language of the window or the conversation).
-- An error with a code: `&backend.Error{Code, Message}`. A tool's error goes to the model as its result.
+- A coded error, which the views tell apart (`err.code`, `err.data` in the frame): `backend.Coded("db_password", msg, data)`; `backend.CodeOf(err)` reads the code of one the IDE's core answered (`auth_required`: ask the SSH password). A tool's error goes to the model as its result.
+- `Info.Project.Main`: the main project of a worktree; key per-project data by it.
 - Standard error goes to `backend.log` of its data folder; standard output is the protocol, never print to it.
 
 ## Develop

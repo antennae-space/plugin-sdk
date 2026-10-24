@@ -50,6 +50,9 @@ type Project struct {
 	// a remote project is reached through the core (`fs.*`).
 	Root  string `json:"root"`
 	Local bool   `json:"local"`
+	// Main is the main project of a worktree (ID itself otherwise): key per-project data by it,
+	// so the worktrees of a project share it.
+	Main string `json:"main"`
 }
 
 // Granted says whether the user granted it (`files:read`, `net`, `core:fs.list`…).
@@ -86,13 +89,39 @@ type Plugin struct {
 	Shutdown func()
 }
 
-// Error is an error with a JSON-RPC code; any other error is sent with the code -32000.
+// Error is an error with a JSON-RPC code; any other error is sent with the code -32000. Data
+// with a "code" makes a coded error the views tell apart (err.code, err.data in the frame): a
+// password to ask, say. An error of the IDE's core may carry one too (auth_required).
 type Error struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int               `json:"code"`
+	Message string            `json:"message"`
+	Data    map[string]string `json:"data,omitempty"`
+}
+
+// Coded is an error the views tell apart by its code, with data for them.
+func Coded(code, message string, data map[string]string) error {
+	d := map[string]string{"code": code}
+	for k, v := range data {
+		if k != "code" {
+			d[k] = v
+		}
+	}
+	return &Error{Code: -32010, Message: message, Data: d}
+}
+
+// CodeOf is the code of a coded error ("" for another one).
+func CodeOf(err error) string {
+	var e *Error
+	if errors.As(err, &e) {
+		return e.Data["code"]
+	}
+	return ""
 }
 
 func (e *Error) Error() string { return e.Message }
+
+// ErrorCode is the code of a coded error ("" for another one).
+func (e *Error) ErrorCode() string { return e.Data["code"] }
 
 type message struct {
 	JSONRPC string          `json:"jsonrpc"`

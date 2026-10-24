@@ -240,3 +240,22 @@ func mustJSON(v any) json.RawMessage {
 	b, _ := json.Marshal(v)
 	return b
 }
+
+func TestCodedErrors(t *testing.T) {
+	f := start(t, Plugin{Methods: map[string]Method{
+		"db.connect": func(ctx context.Context, _ json.RawMessage) (any, error) {
+			err := Core(ctx, "dial", nil, nil)
+			if CodeOf(err) == "auth_required" {
+				return nil, Coded("db_password", "Password of db", map[string]string{"kind": "dbpassword"})
+			}
+			return nil, err
+		},
+	}}, func(string, json.RawMessage) (any, *Error) {
+		return nil, &Error{Code: -32000, Message: "Password of me@h", Data: map[string]string{"code": "auth_required", "kind": "password"}}
+	})
+	f.ask("initialize", initParams)
+	m := f.ask("call", map[string]any{"method": "db.connect"})
+	if m.Error == nil || m.Error.Data["code"] != "db_password" || m.Error.Data["kind"] != "dbpassword" || m.Error.Message != "Password of db" {
+		t.Fatalf("coded: %+v", m.Error)
+	}
+}
