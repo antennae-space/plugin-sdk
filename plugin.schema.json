@@ -77,6 +77,16 @@
             "type": "string",
             "pattern": "^core:[a-z][A-Za-z0-9_.]*$",
             "description": "A method of the core it may call (core:fs.list)."
+          },
+          {
+            "type": "string",
+            "pattern": "^program:[A-Za-z0-9][A-Za-z0-9._+-]*$",
+            "description": "A program its language servers run (program:gopls)."
+          },
+          {
+            "type": "string",
+            "pattern": "^path:[A-Z][A-Z0-9_]*$",
+            "description": "A folder of the host its language servers need (path:GOMODCACHE)."
           }
         ]
       }
@@ -353,6 +363,127 @@
               "target": {
                 "type": "string",
                 "description": "The argument naming what it acts on (a connection)."
+              }
+            }
+          }
+        },
+        "languages": {
+          "type": "array",
+          "description": "Makes the plugin a language pack: what it gives the language host.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "extensions"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "extensions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^\\.[A-Za-z0-9_+-]+$"
+                }
+              },
+              "markers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "languageIds": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "grammar": {
+                "type": "string",
+                "pattern": "^grammars/[^/]+\\.json$"
+              },
+              "servers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "argv"
+                  ],
+                  "properties": {
+                    "argv": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Its program (a bare name, on the PATH of the host, granted as program:<name>) and arguments."
+                    },
+                    "paths": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "candidates"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "pattern": "^[A-Z][A-Z0-9_]*$"
+                          },
+                          "candidates": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "$VAR/rest, ~/rest, @program/rest or an absolute path: the first that exists."
+                          },
+                          "access": {
+                            "enum": [
+                              "read",
+                              "write"
+                            ]
+                          },
+                          "env": {
+                            "type": "boolean",
+                            "description": "Pass it as the variable of its name."
+                          }
+                        }
+                      }
+                    },
+                    "pathDirs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Folders added to its PATH: <NAME>/rest."
+                    },
+                    "env": {
+                      "type": "object",
+                      "propertyNames": {
+                        "pattern": "^[A-Z][A-Z0-9_]*$"
+                      },
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Literal variables of its environment."
+                    }
+                  }
+                }
+              },
+              "tests": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
               }
             }
           }
