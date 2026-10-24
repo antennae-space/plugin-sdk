@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/antennae-space/plugin-sdk/blob/main/plugin.schema.json",
+  "title": "plugin.json of an external plugin of Web IDE (apiVersion 1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "version",
+    "apiVersion",
+    "ide",
+    "assets",
+    "contributes"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Its id: the prefix of its methods (<id>.*), events and commands."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Its name, shown in Settings \u2192 Plugins."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$",
+      "description": "Its version; the tag of a release is v<version>."
+    },
+    "apiVersion": {
+      "const": 1
+    },
+    "ide": {
+      "type": "string",
+      "description": "A semver constraint on the version of the IDE (^1.24, >=1.23.0 <2)."
+    },
+    "plugins": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The plugins it needs: id \u2192 semver constraint."
+    },
+    "assets": {
+      "type": "string",
+      "pattern": "^https://.*\\{version\\}.*\\{arch\\}",
+      "description": "The address of its release archive, with {version} and {arch} (linux-amd64, linux-arm64)."
+    },
+    "backend": {
+      "type": "string",
+      "pattern": "^bin/[A-Za-z0-9._-]+$",
+      "description": "The executable of its confined backend in the archive."
+    },
+    "permissions": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "The grants it asks; the user accepts them one by one.",
+      "items": {
+        "anyOf": [
+          {
+            "enum": [
+              "files:read",
+              "files:write",
+              "net",
+              "exec"
+            ]
+          },
+          {
+            "type": "string",
+            "pattern": "^core:[a-z][A-Za-z0-9_.]*$",
+            "description": "A method of the core it may call (core:fs.list)."
+          }
+        ]
+      }
+    },
+    "provides": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Capabilities it needs (terminal, worktrees, git\u2026)."
+    },
+    "namespaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "icon",
+              "zone"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "icon": {
+                "type": "string"
+              },
+              "zone": {
+                "enum": [
+                  "left",
+                  "bottomLeft",
+                  "bottomRight",
+                  "right"
+                ]
+              },
+              "before": {
+                "type": "string",
+                "description": "The tool it comes before in its zone."
+              }
+            }
+          }
+        },
+        "tabViews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "category": {
+                "type": "string"
+              },
+              "keys": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Default shortcuts, physical keys (Ctrl+Enter, Alt+KeyD)."
+              },
+              "replaces": {
+                "type": "string"
+              },
+              "inTerminal": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "assistantTools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z_0-9]*$"
+          },
+          "description": "Its tools for the assistant and the MCP, each described in toolSchemas."
+        },
+        "toolSchemas": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "description",
+              "properties"
+            ],
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "properties": {
+                "type": "object"
+              },
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

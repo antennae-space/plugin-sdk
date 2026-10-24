@@ -1,0 +1,43 @@
+{
+  "name": "@antennae-space/plugin-sdk",
+  "version": "1.0.0",
+  "description": "Build external plugins of Web IDE: the types of the sandbox API, a Solid UI kit with the theme of the IDE, a Vite preset",
+  "license": "MIT",
+  "type": "module",
+  "repository": "github:antennae-space/plugin-sdk",
+  "exports": {
+    ".": "./src/index.ts",
+    "./solid": "./src/solid.tsx",
+    "./ui": "./src/ui/index.ts",
+    "./ui.css": "./src/ui/ui.css",
+    "./vite": {
+      "types": "./vite.d.ts",
+      "default": "./vite.js"
+    },
+    "./plugin.schema.json": "./plugin.schema.json"
+  },
+  "files": [
+    "src",
+    "vite.js",
+    "vite.d.ts",
+    "plugin.schema.json"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "node --test test/",
+    "check-api": "node scripts/check-api.mjs"
+  },
+  "peerDependencies": {
+    "solid-js": "^1.9.0",
+    "vite": "^8.0.0",
+    "vite-plugin-solid": "^2.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "jsdom": "^26.1.0",
+    "solid-js": "^1.9.15",
+    "typescript": "^5.9.0",
+    "vite": "^8.0.0",
+    "vite-plugin-solid": "^2.11.0"
+  }
+}

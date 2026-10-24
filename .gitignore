@@ -1,0 +1,4 @@
+node_modules/
+dist/
+example/web/index.js
+example/web/*.css
