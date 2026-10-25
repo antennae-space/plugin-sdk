@@ -73,7 +73,10 @@
               "vault",
               "socket:docker",
               "terminal",
-              "notify"
+              "notify",
+              "git",
+              "gh",
+              "worktrees"
             ]
           },
           {

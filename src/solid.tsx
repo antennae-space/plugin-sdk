@@ -1,8 +1,8 @@
 // Solid helpers for the views of a plugin: `view(Component)` makes a `views` entry of
 // `ide.register`, and the hooks read the frame's API, theme, language and tab state.
-import { createContext, createSignal, onCleanup, useContext, type Accessor, type Component } from 'solid-js'
+import { createContext, createEffect, createSignal, onCleanup, useContext, type Accessor, type Component } from 'solid-js'
 import { render } from 'solid-js/web'
-import type { SandboxAPI, SandboxTheme } from './sandbox-api'
+import type { SandboxAPI, SandboxStatusItem, SandboxTheme } from './sandbox-api'
 import { injectStyle } from './ui/style'
 import './global'
 
@@ -112,4 +112,14 @@ export function useService(capability: string) {
       return v
     },
   }
+}
+
+/**
+ * The items of the status bar of this tab (a tab view), kept in step with items(); onChoice gets
+ * the choices of their menus.
+ */
+export function useStatus(items: Accessor<SandboxStatusItem[]>, onChoice: (item: string, choice: string) => void): void {
+  const ide = useIde()
+  ide.onStatus((e) => onChoice(e.item, e.choice))
+  createEffect(() => ide.setStatus(items()))
 }

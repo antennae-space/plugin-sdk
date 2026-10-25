@@ -8,4 +8,5 @@ export { Button, IconButton, Field, TextInput, TextArea, Select, Checkbox, Switc
 export { View, Toolbar, Separator, EmptyState, Spinner, Message, Tabs, Splitter, type Tab } from './layout'
 export { List, Tree, Table, type Item, type Node, type Column } from './collections'
 export { openMenu, Modal, confirm, type MenuItem } from './overlays'
+export { Markdown, HelpLink, fuzzy } from './content'
 export { injectStyle } from './style'
