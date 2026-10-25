@@ -2,8 +2,9 @@
 // confined (Landlock and seccomp) and speaks to in JSON-RPC 2.0 over stdin and stdout, one
 // message per line.
 //
-// The IDE asks it `initialize`, `call` (an `<id>.*` method of one of its views), `tool` (one of
-// its assistant tools) and `shutdown`; the backend asks the IDE `core` (a method of the core,
+// The IDE asks it `initialize`, `call` (an `<id>.*` method of one of its views, or of another
+// plugin's backend using a capability it provides), `tool` (one of its assistant tools) and
+// `shutdown`; the backend asks the IDE `core` (a method of the core,
 // refused without the grant `core:<method>`) and tells it `emit` (an `<id>.*` event to the
 // windows of the project). Serve does all of it: a plugin gives its methods and tools.
 //
@@ -90,6 +91,8 @@ type Plugin struct {
 	// Notify answers the notifications of the IDE by method (no answer is sent); those of the
 	// terminals it opened (terminal.resize) reach their Terminal first.
 	Notify map[string]func(ctx context.Context, params json.RawMessage)
+	// Events hears the events of the backends of the capabilities it listens to (ServiceOn).
+	Events func(ctx context.Context, event string, data json.RawMessage)
 }
 
 // Error is an error with a JSON-RPC code; any other error is sent with the code -32000. Data
@@ -299,6 +302,15 @@ func (c *conn) handle(ctx context.Context, m message) {
 			if m.Method == "terminal.resize" {
 				resized(m.Params)
 			}
+			if m.Method == "event" && c.p.Events != nil {
+				var e struct {
+					Event string          `json:"event"`
+					Data  json.RawMessage `json:"data"`
+				}
+				if json.Unmarshal(m.Params, &e) == nil {
+					c.p.Events(ctx, e.Event, e.Data)
+				}
+			}
 			if f := c.p.Notify[m.Method]; f != nil {
 				f(ctx, m.Params)
 			}
@@ -324,12 +336,14 @@ func (c *conn) handle(ctx context.Context, m message) {
 		Name   string          `json:"name"`
 		Args   json.RawMessage `json:"args"`
 		Lang   string          `json:"lang"`
+		From   string          `json:"from"`
 	}
 	if err := json.Unmarshal(m.Params, &p); err != nil {
 		c.reply(m.ID, nil, &Error{Code: -32602, Message: "invalid " + m.Method + ": " + err.Error()})
 		return
 	}
 	ctx = context.WithValue(ctx, langKey{}, p.Lang)
+	ctx = context.WithValue(ctx, fromKey{}, p.From)
 	if m.Method == "call" {
 		f := c.p.Methods[p.Method]
 		if f == nil {

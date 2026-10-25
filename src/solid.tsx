@@ -96,3 +96,20 @@ export function useModal(): { isModal: boolean; close: (result?: unknown) => voi
   const ide = useIde()
   return { isModal: ide.modal, close: (result) => ide.closeModal(result) }
 }
+
+/**
+ * A capability another external plugin provides, one the manifest requires (`ide.use`): its
+ * calls, and a value it publishes as an accessor.
+ */
+export function useService(capability: string) {
+  const svc = useIde().use(capability)
+  return {
+    call: svc.call,
+    on: svc.on,
+    value<T = unknown>(key: string): Accessor<T | undefined> {
+      const [v, setV] = createSignal<T | undefined>(svc.value<T>(key))
+      svc.onValue(key, (x) => setV(() => x as T))
+      return v
+    },
+  }
+}

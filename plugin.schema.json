@@ -102,14 +102,15 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "description": "Capabilities it serves to the other external plugins (ide.register services, ide.publish, ide.emit; its backend's methods for service.call)."
     },
     "requires": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Capabilities it needs (terminal, worktrees, git\u2026)."
+      "description": "Capabilities it needs (terminal, worktrees, git\u2026); one an external plugin provides is used with ide.use and service.call."
     },
     "namespaces": {
       "type": "array",
@@ -169,6 +170,20 @@
             "properties": {
               "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
               "label": { "type": "string", "description": "The title by default (a text of its catalog)." }
+            }
+          }
+        },
+        "links": {
+          "type": "array",
+          "description": "Parameters of a project's address opening one of its tab views: /project/<id>?<param>=<value>, the value the key of the tab and the field param of its state.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["param", "view"],
+            "properties": {
+              "param": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "not": { "enum": ["open", "questions", "assistant", "chat", "desk"] } },
+              "view": { "type": "string", "description": "One of its tab views." },
+              "type": { "enum": ["number", "string"], "description": "The type of the value in the state (string by default)." }
             }
           }
         },
