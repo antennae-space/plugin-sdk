@@ -72,7 +72,8 @@
               "ssh",
               "vault",
               "socket:docker",
-              "terminal"
+              "terminal",
+              "notify"
             ]
           },
           {
@@ -284,6 +285,23 @@
             "pattern": "^[a-z][a-z_0-9]*$"
           },
           "description": "Its tools for the assistant and the MCP, each described in toolSchemas."
+        },
+        "mcpTools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z_0-9]*$"
+          },
+          "description": "Its tools for the MCP only (Claude Code, the agents), each described in toolSchemas; its backend gets the scope of the call (backend.Plugin.MCP)."
+        },
+        "questions": {
+          "type": "boolean",
+          "description": "Its backend asks the user through the Questions tool (backend.Plugin.Questions)."
+        },
+        "hooks": {
+          "type": "array",
+          "items": { "enum": ["project.open"] },
+          "description": "The moments of a project its backend is told of: project.open, a window opened the project."
         },
         "toolSchemas": {
           "type": "object",

@@ -93,6 +93,10 @@ type Plugin struct {
 	Notify map[string]func(ctx context.Context, params json.RawMessage)
 	// Events hears the events of the backends of the capabilities it listens to (ServiceOn).
 	Events func(ctx context.Context, event string, data json.RawMessage)
+	// MCP answers its MCP tools (contributes.mcpTools), by name, with the scope of the call.
+	MCP map[string]MCPTool
+	// Questions are the questions it asks the user (contributes.questions).
+	Questions *Questions
 }
 
 // Error is an error with a JSON-RPC code; any other error is sent with the code -32000. Data
@@ -291,6 +295,15 @@ func (c *conn) handle(ctx context.Context, m message) {
 		close(c.quit)
 		return
 	case "call", "tool":
+	case "mcp", "questions.list", "questions.answer":
+		select {
+		case <-c.ready:
+		case <-ctx.Done():
+			return
+		}
+		res, err := c.extra(ctx, m)
+		c.reply(m.ID, res, err)
+		return
 	default:
 		if m.ID == nil {
 			// A notification of the IDE: to a terminal, then to the plugin.
