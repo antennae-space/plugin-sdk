@@ -466,6 +466,20 @@
                         }
                       }
                     },
+                    "install": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["manager", "packages"],
+                      "description": "How the IDE installs it when missing, into the pack's folder of tools (~/.local/share/web-ide/tools/<pack>): the IDE builds the command.",
+                      "properties": {
+                        "manager": { "enum": ["npm", "pip", "go"] },
+                        "packages": {
+                          "type": "array",
+                          "items": { "type": "string", "pattern": "^[A-Za-z0-9@][A-Za-z0-9@._/+=<>~^,\\[\\]-]*$" },
+                          "description": "npm or pip packages (typescript@5, python-lsp-server[all]), or one Go module@version."
+                        }
+                      }
+                    },
                     "pathDirs": {
                       "type": "array",
                       "items": {

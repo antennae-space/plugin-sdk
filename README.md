@@ -6,7 +6,7 @@ What an external plugin of [Web IDE](https://github.com/antennae-space/web-ide) 
 - **A UI kit in Solid**, with the look, the theme and the keyboard of the IDE's own tools.
 - **A Vite preset** building the page module as the IDE loads it: one ES module, nothing apart.
 - **A Go module** for the confined backend: `antennae.space/plugin-sdk/backend`, JSON-RPC over stdio.
-- **The JSON Schema of `plugin.json`** (`plugin.schema.json`), language packs included (`contributes.languages`, grants `program:` and `path:`; [lang-go](https://github.com/antennae-space/lang-go) is one).
+- **The JSON Schema of `plugin.json`** (`plugin.schema.json`), language packs included (`contributes.languages`, grants `program:` and `path:`, the `install` recipe of a server the IDE installs when missing; [lang-go](https://github.com/antennae-space/lang-go) is one).
 
 Start from [plugin-template](https://github.com/antennae-space/plugin-template); the IDE's how-to [Write a plugin](https://github.com/antennae-space/web-ide/blob/main/docs/howto/write-a-plugin.md) explains the rest (manifest, grants, releases). [plugin-greet](https://github.com/antennae-space/plugin-greet) is a small example.
 
@@ -17,7 +17,7 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.7.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.8.0 solid-js vite vite-plugin-solid
 ```
 
 - `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
