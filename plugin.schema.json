@@ -76,7 +76,10 @@
               "notify",
               "git",
               "gh",
-              "worktrees"
+              "worktrees",
+              "use:assistant",
+              "use:agents",
+              "use:terminal"
             ]
           },
           {
