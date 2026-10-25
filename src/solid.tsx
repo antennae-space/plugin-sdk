@@ -90,3 +90,9 @@ export function useSettings<T extends Record<string, unknown> = Record<string, u
   ide.onSettings((v) => setValues(() => v as T))
   return values
 }
+
+/** A modal view (contributes.modals, opened by ide.openModal): close gives its opener a result. */
+export function useModal(): { isModal: boolean; close: (result?: unknown) => void } {
+  const ide = useIde()
+  return { isModal: ide.modal, close: (result) => ide.closeModal(result) }
+}

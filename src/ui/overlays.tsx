@@ -81,6 +81,8 @@ export function Modal(props: ParentProps<{ title: string; onClose: () => void; f
 
 /** Asks a yes or no in a modal; the labels are the plugin's (through `ide.t`). */
 export function confirm(o: { title: string; text: string; ok: string; cancel: string; danger?: boolean }): Promise<boolean> {
+  // The IDE's own dialog, centered in its window (IDE 1.24): the frame's only before it.
+  if (typeof ide !== 'undefined' && typeof ide.confirm === 'function') return ide.confirm({ title: o.title, text: o.text, ok: o.ok, danger: o.danger })
   return new Promise((resolve) => {
     const host = document.createElement('div')
     document.body.append(host)

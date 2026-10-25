@@ -159,6 +159,19 @@
             }
           }
         },
+        "modals": {
+          "type": "array",
+          "description": "Views opened in a modal of the IDE (ide.openModal), centered, titled with the plugin.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+              "label": { "type": "string", "description": "The title by default (a text of its catalog)." }
+            }
+          }
+        },
         "tabViews": {
           "type": "array",
           "items": {

@@ -17,7 +17,7 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.8.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.9.0 solid-js vite vite-plugin-solid
 ```
 
 - `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
@@ -52,7 +52,7 @@ ide.register({ views: { files: view(Files) } })
 The frame has no network and no storage (its CSP: inline scripts and styles, images as data): the preset inlines the CSS and the assets, and refuses a second file. Ask the backend for what is outside.
 
 - `@antennae-space/plugin-sdk`: the types (`SandboxAPI`, `FrameCall`, `PageMessage`…), `themeTokens`, `isDark()`, and the global `ide`.
-- `@antennae-space/plugin-sdk/solid`: `view(Component)` (a `views` entry, with the kit's styles), `useIde()`, `useTheme()`, `useViewState(initial)` (the state kept with the tab), `useEvent(event, f)`, `useRpc(method, params)`, `useEditor()` (the IDE's editor of a tab view with `editor` in the manifest: `{editor, text, selection}`), `useSettings()` (the plugin's settings).
+- `@antennae-space/plugin-sdk/solid`: `view(Component)` (a `views` entry, with the kit's styles), `useIde()`, `useTheme()`, `useViewState(initial)` (the state kept with the tab), `useEvent(event, f)`, `useRpc(method, params)`, `useEditor()` (the IDE's editor of a tab view with `editor` in the manifest: `{editor, text, selection}`), `useSettings()` (the plugin's settings), `useModal()` (in a modal view: `close(result)`). The dialogs of the IDE, centered in its window: `ide.confirm`, `ide.prompt`, `ide.pick`, and `ide.openModal(view, state, {title, size})` for a view of `contributes.modals` (IDE 1.24); the kit's `confirm` uses `ide.confirm` when the IDE has it.
 - `@antennae-space/plugin-sdk/ui`: `Button`, `IconButton`, `Field`, `TextInput`, `TextArea`, `Select`, `Checkbox`, `Switch`, `View`, `Toolbar`, `Separator`, `Tabs`, `Splitter`, `EmptyState`, `Message`, `Spinner`, `List`, `Tree` (children loaded on opening), `Table` (virtual rows), `openMenu`, `Modal`, `confirm`, `Icon` (a part of the IDE's icons).
 
 The kit follows the rules of the IDE: text never under 12px, the focus always visible, one tab stop per list, tree or table and the arrows inside it. Its colors are the theme's CSS variables (`themeTokens`: `--bg`, `--fg`, `--accent`…), set on the frame by the IDE and changed with the theme; use them in the plugin's own CSS too. `--ide-head-inset` is the room the IDE's own buttons take over the top right corner of the frame: the kit's toolbar leaves it; a header of the plugin's own takes the class `ide-head`.
