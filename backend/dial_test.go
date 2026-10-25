@@ -199,3 +199,26 @@ func TestTerminal(t *testing.T) {
 		t.Fatal("no resize")
 	}
 }
+
+// A program on the host of an SSH project: argv and dir to the IDE, its output back.
+func TestExec(t *testing.T) {
+	var asked json.RawMessage
+	f := start(t, Plugin{Methods: map[string]Method{
+		"db.version": func(ctx context.Context, _ json.RawMessage) (any, error) {
+			return Exec(ctx, []string{"sqlite3", "-version"}, "data")
+		},
+	}}, func(method string, params json.RawMessage) (any, *Error) {
+		if method != "exec" {
+			return nil, &Error{Code: -32000, Message: "no " + method}
+		}
+		asked = params
+		return map[string]any{"output": "3.45.1\n"}, nil
+	})
+	f.ask("initialize", initParams)
+	if m := f.ask("call", map[string]any{"method": "db.version"}); m.Error != nil || string(m.Result) != `"3.45.1\n"` {
+		t.Fatalf("%s %v", m.Result, m.Error)
+	}
+	if string(asked) != `{"argv":["sqlite3","-version"],"dir":"data"}` {
+		t.Fatalf("asked %s", asked)
+	}
+}

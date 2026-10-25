@@ -87,6 +87,11 @@
           },
           {
             "type": "string",
+            "pattern": "^exec:[A-Za-z0-9][A-Za-z0-9._+-]*$",
+            "description": "A program run on the host of an SSH project (exec:sqlite3), through backend.Exec; not confined there."
+          },
+          {
+            "type": "string",
             "pattern": "^path:[A-Z][A-Z0-9_]*$",
             "description": "A folder of the host its language servers need (path:GOMODCACHE)."
           }

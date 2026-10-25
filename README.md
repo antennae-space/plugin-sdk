@@ -17,7 +17,7 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.6.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.7.0 solid-js vite vite-plugin-solid
 ```
 
 - `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
@@ -98,6 +98,7 @@ func main() {
 - `backend.Core(ctx, method, params, &out)`: a method of the core, refused without the grant `core:<method>`.
 - `backend.Emit(ctx, "myplugin.changed", data)`: an event to the windows of the project (`ide.on`).
 - `backend.Dial(ctx, host, port, ssh)`: a connection the IDE opens for the plugin (grant `dial`; through an SSH tunnel of the user's agent and keys with `&backend.SSH{…}` and the grant `ssh`), a `net.Conn`. The user allows each new destination once: the call waits for the answer. A confined backend has no network of its own unless granted `net`.
+- `backend.Exec(ctx, argv, dir)`: runs a program on the host of an SSH project (grant `exec:<name>`, `exec:sqlite3`; nothing confines it there) and returns its output; refused on a local project, where the backend runs its programs itself.
 - `backend.Socket(ctx, "docker")`: the Docker socket, opened by the IDE (grant `socket:docker`, as much as root on the host: the IDE says so), the host's on an SSH project; a `net.Conn` speaking the Docker Engine API.
 - `backend.OpenTerminal(ctx, title)`: a console of the IDE the plugin feeds (grant `terminal`): write its output, read what is typed, `OnResize`; show it with `ide.showConsole(term.ID)` in a view. `Plugin.Notify` gets the other notifications of the IDE.
 - `backend.Secret(ctx, key)`, `SetSecret`, `DeleteSecret`: the plugin's entries of the vault (grant `vault`), synced with the user's other pods; passwords and tokens go there, never in the plugin's files.
