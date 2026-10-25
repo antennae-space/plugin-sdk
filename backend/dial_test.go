@@ -144,3 +144,58 @@ func TestSettingsAndTargets(t *testing.T) {
 		t.Fatalf("declared %s", declared)
 	}
 }
+
+// A console the plugin feeds: its socket comes on fd 3, its resizes as notifications.
+func TestTerminal(t *testing.T) {
+	pair, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_SEQPACKET, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fd3 = os.NewFile(uintptr(pair[1]), "fd3")
+	sockets = &fdInbox{waiting: map[int]chan *os.File{}, arrived: map[int]*os.File{}}
+	podEnd, _ := net.FileConn(os.NewFile(uintptr(pair[0]), "pod"))
+	defer podEnd.Close()
+	sizes := make(chan string, 1)
+	var console net.Conn
+	f := start(t, Plugin{
+		Methods: map[string]Method{
+			"x.shell": func(ctx context.Context, _ json.RawMessage) (any, error) {
+				term, err := OpenTerminal(ctx, "Shell")
+				if err != nil {
+					return nil, err
+				}
+				term.OnResize(func(cols, rows int) { sizes <- fmt.Sprintf("%dx%d", cols, rows) })
+				go func() { _, _ = term.Write([]byte("$ ")) }()
+				return term.ID, nil
+			},
+		},
+	}, func(method string, params json.RawMessage) (any, *Error) {
+		if method != "terminal.open" {
+			return nil, &Error{Code: -32000, Message: "no " + method}
+		}
+		fds, _ := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+		console, _ = net.FileConn(os.NewFile(uintptr(fds[0]), "console"))
+		theirs := os.NewFile(uintptr(fds[1]), "theirs")
+		_, _, _ = podEnd.(*net.UnixConn).WriteMsgUnix([]byte("4"), syscall.UnixRights(int(theirs.Fd())), nil)
+		theirs.Close()
+		return map[string]any{"console": "c1", "fd": 4}, nil
+	})
+	f.ask("initialize", initParams)
+	if m := f.ask("call", map[string]any{"method": "x.shell"}); string(m.Result) != `"c1"` {
+		t.Fatalf("opened: %s %v", m.Result, m.Error)
+	}
+	b := make([]byte, 2)
+	_ = console.SetReadDeadline(time.Now().Add(5 * time.Second))
+	if n, _ := console.Read(b); string(b[:n]) != "$ " {
+		t.Fatalf("its output: %q", b[:n])
+	}
+	f.write(message{JSONRPC: "2.0", Method: "terminal.resize", Params: mustJSON(map[string]any{"console": "c1", "cols": 90, "rows": 20})})
+	select {
+	case got := <-sizes:
+		if got != "90x20" {
+			t.Fatalf("size %s", got)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("no resize")
+	}
+}

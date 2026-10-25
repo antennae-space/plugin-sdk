@@ -87,6 +87,9 @@ type Plugin struct {
 	Tools   map[string]Tool
 	// Shutdown runs at `shutdown`, before the process exits.
 	Shutdown func()
+	// Notify answers the notifications of the IDE by method (no answer is sent); those of the
+	// terminals it opened (terminal.resize) reach their Terminal first.
+	Notify map[string]func(ctx context.Context, params json.RawMessage)
 }
 
 // Error is an error with a JSON-RPC code; any other error is sent with the code -32000. Data
@@ -286,6 +289,21 @@ func (c *conn) handle(ctx context.Context, m message) {
 		return
 	case "call", "tool":
 	default:
+		if m.ID == nil {
+			// A notification of the IDE: to a terminal, then to the plugin.
+			select {
+			case <-c.ready:
+			case <-ctx.Done():
+				return
+			}
+			if m.Method == "terminal.resize" {
+				resized(m.Params)
+			}
+			if f := c.p.Notify[m.Method]; f != nil {
+				f(ctx, m.Params)
+			}
+			return
+		}
 		if m.ID != nil {
 			c.reply(m.ID, nil, &Error{Code: -32601, Message: "unknown method: " + m.Method})
 		}

@@ -70,7 +70,9 @@
               "exec",
               "dial",
               "ssh",
-              "vault"
+              "vault",
+              "socket:docker",
+              "terminal"
             ]
           },
           {
