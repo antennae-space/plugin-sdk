@@ -54,6 +54,11 @@ type Project struct {
 	// Main is the main project of a worktree (ID itself otherwise): key per-project data by it,
 	// so the worktrees of a project share it.
 	Main string `json:"main"`
+	// Name is the name of the project; MainRoot and MainName those of its main project (IDE
+	// 1.24; its own for a main project).
+	Name     string `json:"name"`
+	MainRoot string `json:"mainRoot"`
+	MainName string `json:"mainName"`
 }
 
 // Granted says whether the user granted it (`files:read`, `net`, `core:fs.list`…).
@@ -431,12 +436,24 @@ func Core(ctx context.Context, method string, params, out any) error {
 
 // Emit sends an event of the plugin (`<id>.something`) to the windows of the project, which
 // its views hear with `ide.on`.
-func Emit(ctx context.Context, event string, data any) error {
+func Emit(ctx context.Context, event string, data any) error { return emit(ctx, event, data, false) }
+
+// EmitFamily is Emit to the windows of the main project and of its worktrees (IDE 1.24): what
+// they all show (the tickets of a kanban).
+func EmitFamily(ctx context.Context, event string, data any) error {
+	return emit(ctx, event, data, true)
+}
+
+func emit(ctx context.Context, event string, data any, family bool) error {
 	c := from(ctx)
 	if c == nil {
 		return errors.New("backend.Emit outside a call of Serve")
 	}
-	raw, err := json.Marshal(map[string]any{"event": event, "data": data})
+	m := map[string]any{"event": event, "data": data}
+	if family {
+		m["family"] = true
+	}
+	raw, err := json.Marshal(m)
 	if err != nil {
 		return err
 	}

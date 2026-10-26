@@ -3,6 +3,15 @@
 import type { JSX } from 'solid-js'
 
 export const icons = {
+  clock: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM12 7v5l3 3',
+  comment: 'M4 5h16v11H10l-6 4z',
+  conflict: 'M12 3 2 20h20zM12 10v4M12 17v.5',
+  down: 'M6 9l6 6 6-6',
+  kanban: 'M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z',
+  menu: 'M4 6h16M4 12h16M4 18h16',
+  paperclip: 'M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L9.7 17a1.7 1.7 0 0 1-2.4-2.4L15 7',
+  target: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9zM12 11.5v1',
+  up: 'M6 15l6-6 6 6',
   plus: 'M12 5v14M5 12h14',
   close: 'M6 6l12 12M18 6 6 18',
   refresh: 'M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7',

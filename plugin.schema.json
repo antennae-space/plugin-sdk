@@ -79,7 +79,8 @@
               "worktrees",
               "use:assistant",
               "use:agents",
-              "use:terminal"
+              "use:terminal",
+              "use:commands"
             ]
           },
           {
@@ -118,6 +119,13 @@
         "type": "string"
       },
       "description": "Capabilities it needs (terminal, worktrees, git\u2026); one an external plugin provides is used with ide.use and service.call."
+    },
+    "uses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Capabilities it uses when they are there, without needing them to be on (the assistant, the agents)."
     },
     "namespaces": {
       "type": "array",

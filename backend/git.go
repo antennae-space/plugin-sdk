@@ -16,6 +16,17 @@ func Git(ctx context.Context, dir string, args ...string) (string, error) {
 	return r.Output, err
 }
 
+// GitAny is Git with its output whatever its exit code (git diff --no-index exits 1 on a
+// difference), and that code; an error only when git could not run (IDE 1.24).
+func GitAny(ctx context.Context, dir string, args ...string) (string, int, error) {
+	var r struct {
+		Output string `json:"output"`
+		Exit   int    `json:"exit"`
+	}
+	err := Core(ctx, "git", map[string]any{"args": args, "dir": dir, "anyExit": true}, &r)
+	return r.Output, r.Exit, err
+}
+
 // GH runs gh pr … (grant gh) in the project's main folder.
 func GH(ctx context.Context, args ...string) (string, error) {
 	var r struct {
