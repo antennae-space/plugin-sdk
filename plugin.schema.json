@@ -220,6 +220,10 @@
                 "type": "string",
                 "minLength": 1
               },
+              "alone": {
+                "type": "boolean",
+                "description": "A tab of its own in the Full mode, alone in its tile on a desk of tiles, like a tool."
+              },
               "editor": {
                 "type": "object",
                 "additionalProperties": false,

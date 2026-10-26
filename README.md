@@ -17,7 +17,7 @@ The major version is the plugin API's: `v1.x` is `apiVersion: 1`. A minor versio
 ## The page module
 
 ```sh
-npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.9.0 solid-js vite vite-plugin-solid
+npm i -D git+https://github.com/antennae-space/plugin-sdk.git#v1.14.0 solid-js vite vite-plugin-solid
 ```
 
 - `git+https`, not `github:` (npm tries ssh first) nor the archive of the tag (npm 10 may hang on it).
@@ -96,15 +96,15 @@ func main() {
 
 - `Init` runs at `initialize` with the `Info` (grants, project, version); calls wait for it.
 - `backend.Core(ctx, method, params, &out)`: a method of the core, refused without the grant `core:<method>`.
-- `backend.Emit(ctx, "myplugin.changed", data)`: an event to the windows of the project (`ide.on`).
+- `backend.Emit(ctx, "myplugin.changed", data)`: an event to the windows of the project (`ide.on`); `backend.EmitFamily` to those of its main project and of its worktrees too (IDE 1.24).
 - `backend.Dial(ctx, host, port, ssh)`: a connection the IDE opens for the plugin (grant `dial`; through an SSH tunnel of the user's agent and keys with `&backend.SSH{…}` and the grant `ssh`), a `net.Conn`. The user allows each new destination once: the call waits for the answer. A confined backend has no network of its own unless granted `net`.
 - `backend.ServiceCall(ctx, capability, method, params, &out)` and `backend.ServiceOn(ctx, capability)`: the backend providing a capability the manifest requires, its method `<provider>.*` and its events (to `Plugin.Events`); a provider's method knows who called it with `backend.FromOf(ctx)` (IDE 1.24). A plugin providing a capability registers its methods for the page in `ide.register({services: {<cap>: {...}}})` and publishes with `ide.publish` / `ide.emit`.
 - `Plugin.MCP` (IDE 1.24): its MCP tools (`contributes.mcpTools`, described in `toolSchemas`), each a `func(ctx, Scope, args) (string, error)`; `Scope` is the project of the client's folder, its main project, the ticket of its worktree, the address of the IDE.
 - `Plugin.Questions` (`contributes.questions: true`): `List` its questions waiting for the user (`Question`: a permission with `Options`, or a form with a `Schema`), `Answer` the user's answer; `backend.QuestionsChanged(ctx, asked)` when they change.
 - `backend.Notify(ctx, Note{Kind, Query, Texts})`: a push notification to the user's devices (grant `notify`), opening the project at `?<Query>`.
 - `Plugin.Notify["project.open"]` with `contributes.hooks: ["project.open"]`: a window opened the project.
-- The bridges of the IDE (grants `use:terminal`, `use:assistant`, `use:agents`): `useService('terminal')` in a view (`open`, `show`), `assistant`, `agents`, and `backend.ServiceCall(ctx, "agents", "agents.develop", …)` in the backend: a reviewed part of a built-in capability (IDE 1.24). `ide.showWorktree(project)` shows a worktree of the project.
-- `backend.Git(ctx, dir, args...)`, `backend.GH(ctx, args...)` (grants `git`, `gh`): git and `gh pr` run by the IDE with the user's keys, in the project or one of its `.ide/worktrees/*`; `backend.RegisterWorktree`, `UnregisterWorktree`, `SetupWorktree`, `KeepIdeOut` (grant `worktrees`): the worktree projects (IDE 1.24).
+- The bridges of the IDE (grants `use:terminal`, `use:assistant`, `use:agents`, `use:commands`): `useService('terminal')` in a view (`open`, `show`), `assistant` (`show` too), `agents` (`show(session)`), `commands` (the saved commands: `load`, `edit`, the value `list`), and `backend.ServiceCall(ctx, "agents", "agents.develop", …)` in the backend: a reviewed part of a built-in capability (IDE 1.24). `ide.showWorktree(project)` shows a worktree of the project, answering once it shows. In `plugin.json`, `uses` lists the capabilities a plugin calls when they are there, without needing them.
+- `backend.Git(ctx, dir, args...)`, `backend.GitAny` (the output and the exit code, whatever it is), `backend.GH(ctx, args...)` (grants `git`, `gh`): git and `gh pr` run by the IDE with the user's keys, in the project or one of its `.ide/worktrees/*`; `backend.RegisterWorktree`, `UnregisterWorktree`, `SetupWorktree`, `KeepIdeOut` (grant `worktrees`): the worktree projects (IDE 1.24).
 - `backend.Exec(ctx, argv, dir)`: runs a program on the host of an SSH project (grant `exec:<name>`, `exec:sqlite3`; nothing confines it there) and returns its output; refused on a local project, where the backend runs its programs itself.
 - `backend.Socket(ctx, "docker")`: the Docker socket, opened by the IDE (grant `socket:docker`, as much as root on the host: the IDE says so), the host's on an SSH project; a `net.Conn` speaking the Docker Engine API.
 - `backend.OpenTerminal(ctx, title)`: a console of the IDE the plugin feeds (grant `terminal`): write its output, read what is typed, `OnResize`; show it with `ide.showConsole(term.ID)` in a view. `Plugin.Notify` gets the other notifications of the IDE.
@@ -112,7 +112,8 @@ func main() {
 - `backend.Settings(ctx, &out)`: the plugin's settings (`contributes.settings`); `backend.DeclareTargets(ctx, targets)`: what its actions act on, for the user's AI access in Settings.
 - `backend.InfoOf(ctx)`, `backend.LangOf(ctx)` (the language of the window or the conversation).
 - A coded error, which the views tell apart (`err.code`, `err.data` in the frame): `backend.Coded("db_password", msg, data)`; `backend.CodeOf(err)` reads the code of one the IDE's core answered (`auth_required`: ask the SSH password). A tool's error goes to the model as its result.
-- `Info.Project.Main`: the main project of a worktree; key per-project data by it.
+- `Info.Project.Main`, `MainRoot`, `MainName`: the main project of a worktree, its folder and its name; key per-project data by it.
+- A tab view's frame: `ide.project` (the project of the window, pushed again when it shows another worktree), `ide.setTitle`, `ide.closeView`, `ide.showTool`; `"alone": true` on a tab view keeps it a tab of its own in the Full mode (IDE 1.24).
 - Standard error goes to `backend.log` of its data folder; standard output is the protocol, never print to it.
 
 ## Develop
