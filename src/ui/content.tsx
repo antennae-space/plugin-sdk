@@ -31,7 +31,7 @@ export function Markdown(props: { text: string; class?: string }) {
 export function HelpLink(props: { topic: string; title?: string }) {
   return (
     <Show when={typeof ide !== 'undefined'}>
-      <button class="ide-help-link" title={props.title ?? 'Help'} aria-label="Help" onClick={() => ide.help(props.topic)}>
+      <button class="ide-help-link" title={props.title ?? 'Help'} aria-label="Help" data-testid={`help-${props.topic}`} onClick={() => ide.help(props.topic)}>
         ?
       </button>
     </Show>
