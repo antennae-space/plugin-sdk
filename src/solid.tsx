@@ -2,7 +2,7 @@
 // `ide.register`, and the hooks read the frame's API, theme, language and tab state.
 import { createContext, createEffect, createSignal, onCleanup, useContext, type Accessor, type Component } from 'solid-js'
 import { render } from 'solid-js/web'
-import type { SandboxAPI, SandboxStatusItem, SandboxTheme } from './sandbox-api'
+import type { SandboxAPI, SandboxStatusItem, SandboxTheme, SandboxToolMenuItem } from './sandbox-api'
 import { injectStyle } from './ui/style'
 import './global'
 
@@ -122,4 +122,14 @@ export function useStatus(items: Accessor<SandboxStatusItem[]>, onChoice: (item:
   const ide = useIde()
   ide.onStatus((e) => onChoice(e.item, e.choice))
   createEffect(() => ide.setStatus(items()))
+}
+
+/**
+ * The items this frame adds to the options menu (the ⋮) of its tool or of its tab, kept in step
+ * with items(); onChoice gets the id of the item chosen. IDE 1.24.
+ */
+export function useToolMenu(items: Accessor<SandboxToolMenuItem[]>, onChoice: (item: string) => void): void {
+  const ide = useIde()
+  ide.onToolMenu((e) => onChoice(e.item))
+  createEffect(() => ide.setToolMenu(items()))
 }
