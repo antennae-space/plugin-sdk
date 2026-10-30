@@ -91,6 +91,21 @@ export function useSettings<T extends Record<string, unknown> = Record<string, u
   return values
 }
 
+/**
+ * The plugin's state in the desk shown (IDE 1.25): each desk keeps its own, a reload or another
+ * machine finds it. The accessor follows another desk shown; set replaces it.
+ */
+export function useDesk<T>(initial: T): [Accessor<T>, (v: T) => void] {
+  const ide = useIde()
+  const [value, setValue] = createSignal<T>((ide.desk as T | null) ?? initial)
+  ide.onDesk((v) => setValue(() => (v as T | null) ?? initial))
+  const set = (v: T) => {
+    setValue(() => v)
+    ide.setDesk(v)
+  }
+  return [value, set]
+}
+
 /** A modal view (contributes.modals, opened by ide.openModal): close gives its opener a result. */
 export function useModal(): { isModal: boolean; close: (result?: unknown) => void } {
   const ide = useIde()
