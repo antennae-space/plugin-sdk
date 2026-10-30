@@ -102,6 +102,11 @@
             "type": "string",
             "pattern": "^path:[A-Z][A-Z0-9_]*$",
             "description": "A folder of the host its language servers need (path:GOMODCACHE)."
+          },
+          {
+            "type": "string",
+            "pattern": "^debugger:[a-z][a-z0-9-]*$",
+            "description": "A debug adapter the core runs for it (debugger:go): not confined, it traces a process and runs your program."
           }
         ]
       }
@@ -568,6 +573,92 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "debuggers": {
+          "type": "array",
+          "description": "The debug adapters of the pack (docs/design/debug.md): the debug host runs them, on the grant debugger:<type>, not confined.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "label", "argv"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$",
+                "description": "The key the debug configurations name (go, node, php); the grant is debugger:<type>."
+              },
+              "label": { "type": "string" },
+              "languages": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "The languages of the pack it serves."
+              },
+              "argv": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Its program (a bare name, on the PATH of the host) and arguments. {port} is the port the host picks (tcp only)."
+              },
+              "transport": {
+                "enum": ["stdio", "tcp"],
+                "description": "stdio over its pipes (default), tcp on the port it listens on."
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["name", "candidates"],
+                  "properties": {
+                    "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+                    "candidates": { "type": "array", "items": { "type": "string" } },
+                    "access": { "enum": ["read", "write"] },
+                    "env": { "type": "boolean" }
+                  }
+                }
+              },
+              "pathDirs": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Folders added to its PATH: <NAME>/rest."
+              },
+              "env": {
+                "type": "object",
+                "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
+                "additionalProperties": { "type": "string" },
+                "description": "Literal variables of its environment."
+              },
+              "install": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["manager", "packages"],
+                "description": "How the IDE installs it when missing, into the pack's folder of tools.",
+                "properties": {
+                  "manager": { "enum": ["npm", "pip", "go"] },
+                  "packages": {
+                    "type": "array",
+                    "items": { "type": "string", "pattern": "^[A-Za-z0-9@][A-Za-z0-9@._/+=<>~^,\\[\\]-]*$" }
+                  }
+                }
+              },
+              "templates": {
+                "type": "array",
+                "description": "The ways the pack suggests to start or reach a program; they fill a new configuration of .ide/debug.json.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["label", "request"],
+                  "properties": {
+                    "label": { "type": "string" },
+                    "request": { "enum": ["launch", "attach", "listen"] },
+                    "config": {
+                      "type": "object",
+                      "description": "The fields of the adapter (program, args, cwd, port…), passed through. ${workspaceFolder}, ${file}, ${fileDirname}, ${env:NAME} are replaced by the host."
+                    }
+                  }
                 }
               }
             }

@@ -1,6 +1,6 @@
 {
   "name": "@antennae-space/plugin-sdk",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "Build external plugins of Web IDE: the types of the sandbox API, a Solid UI kit with the theme of the IDE, a Vite preset",
   "license": "MIT",
   "type": "module",
