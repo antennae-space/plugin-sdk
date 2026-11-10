@@ -663,6 +663,26 @@
               }
             }
           }
+        },
+        "explorerRoots": {
+          "type": "array",
+          "description": "Its roots of the Explorer (IDE 1.29, docs/design/explorer.md): its frames push their nodes with ide.setExplorerNodes; its background frame starts with the project.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+              "label": { "type": "string", "description": "A text of its catalogs." },
+              "icon": { "type": "string", "description": "A name of the icons of the IDE." },
+              "order": { "type": "integer", "description": "Its place by default: Conversations 10, the project 20, Scratches 30, Terminals 40, Debug 50." }
+            }
+          }
+        },
+        "explorerNodes": {
+          "type": "array",
+          "description": "The roots of others it puts nodes into (IDE 1.29): scratches, the root Scratches and Consoles.",
+          "items": { "type": "string", "enum": ["scratches"] }
         }
       }
     }
